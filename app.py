@@ -48,8 +48,8 @@ class Room(Resource):
             'meeting_pwd': args['meeting_pwd'],
             'room_name': args['room_name']
         }
-        ROOMS[room_id] = task
-        return task, 201
+        ROOMS[room_id] = room
+        return room, 201
 
 
 # Multiple resource + add resource
@@ -60,7 +60,7 @@ class RoomList(Resource):
     def post(self):
         request.get_json(force=True)
         args = parser.parse_args()
-        room_id = str(uuid())
+        room_id = str(uuid4())
         ROOMS[room_id] = {
             'your_name': args['your_name'],
             'meeting_pwd': args['meeting_pwd'],
