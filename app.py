@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import reqparse, abort, Api, Resource
 from uuid import uuid4
 
@@ -41,6 +41,7 @@ class Room(Resource):
         return '', 204
 
     def put(self, room_id):
+        request.get_json(force=True)
         args = parser.parse_args()
         room = {
             'your_name': args['your_name'],
@@ -57,6 +58,7 @@ class RoomList(Resource):
         return ROOMS
 
     def post(self):
+        request.get_json(force=True)
         args = parser.parse_args()
         room_id = str(uuid())
         ROOMS[room_id] = {
@@ -72,4 +74,4 @@ api.add_resource(Room, '/rooms/<room_id>')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=6699,debug=True)
