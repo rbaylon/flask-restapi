@@ -1,8 +1,8 @@
-from flask import Flask, request
+from flask import request
 from flask_restful import reqparse, abort, Api, Resource
 from uuid import uuid4
+from baseapp import app
 
-app = Flask(__name__)
 api = Api(app)
 
 ROOMS = {
