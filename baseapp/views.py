@@ -6,7 +6,6 @@ from baseapp.forms import LoginForm, RegisterForm, UsersForm, UsersFormEdit, Use
 from flask_login import login_user, logout_user, current_user, login_required, LoginManager
 from flask import render_template, request, redirect, url_for, abort
 
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -18,7 +17,7 @@ def load_user(user_id):
 @app.route('/')
 @login_required
 def home():
-    return redirect(url_for('recon'))
+    return redirect(url_for('users', page_num=1))
 
 @app.route("/users/<int:page_num>")
 @login_required
@@ -123,9 +122,8 @@ def login():
 
     return render_template('login.html', form=form, msg=msg, nexturl=nexturl)
 
-@app.route("/logout", methods=["GET","POST"])
+@app.route("/logout", methods=["GET"])
 @login_required
 def logout():
     logout_user()
-    form = LoginForm()
     return redirect(url_for('login'))
