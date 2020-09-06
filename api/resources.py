@@ -29,7 +29,7 @@ parser.add_argument('meeting_pwd', required=True)
 parser.add_argument('room_name', required=True)
 
 # Authentication
-class Login(Resource):
+class ApiLogin(Resource):
     def post(self):
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
