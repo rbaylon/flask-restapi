@@ -1,9 +1,15 @@
 from flask import request, jsonify
 from flask_restful import reqparse, abort, Resource
 from werkzeug.security import check_password_hash
-from jwttoken import jwt, jwt_required, create_access_token
 from uuid import uuid4
 from baseapp.models import Users
+from baseapp import app
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
+
+jwt = JWTManager(app)
 
 
 ROOMS = {
