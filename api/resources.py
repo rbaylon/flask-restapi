@@ -1,6 +1,7 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import reqparse, abort, Resource
-from jwttoken import jwt, jwt_required
+from werkzeug.security import check_password_hash
+from jwttoken import jwt, jwt_required, create_access_token
 from uuid import uuid4
 
 
@@ -27,6 +28,26 @@ parser.add_argument('your_name', required=True)
 parser.add_argument('meeting_pwd', required=True)
 parser.add_argument('room_name', required=True)
 
+# Authentication
+class Login(Resource):
+    def post(self):
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+
+        username = request.json.get('username', None)
+        password = request.json.get('password', None)
+        if not username:
+            return jsonify({"msg": "Missing username parameter"}), 400
+        if not password:
+            return jsonify({"msg": "Missing password parameter"}), 400
+
+        user = Users.query.filter_by(username=auth.username).first()
+
+        if check_password_hash(user.password, auth.password) and user:
+            access_token = create_access_token(identity=username)
+            return jsonify(access_token=access_token), 200
+
+        return jsonify({"msg": "Invalid username or password"}), 401
 
 # Single resource
 class Room(Resource):
