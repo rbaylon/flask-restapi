@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 from flask_restful import reqparse, abort, Resource
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -39,22 +39,22 @@ parser.add_argument('room_name', required=True)
 class ApiLogin(Resource):
     def post(self):
         if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+            return make_response('Could not verify', 400, {"msg": "Missing JSON in request"})
 
         username = request.json.get('username', None)
         password = request.json.get('password', None)
         if not username:
-            return jsonify({"msg": "Missing username parameter"}), 400
+            return make_response('Could not verify', 400, {"msg": "Missing username parameter"})
         if not password:
-            return jsonify({"msg": "Missing password parameter"}), 400
+            return make_response('Could not verify', 400, {"msg": "Missing password parameter"})
 
         user = Users.query.filter_by(username=username).first()
 
         if check_password_hash(user.password, password) and user:
-            access_token = create_access_token(identity=username)
-            return jsonify(access_token=access_token), 200
+            access_token = str(create_access_token(identity=username))
+            return make_response({"access_token": access_token}, 200, {"msg": 'success'})
 
-        return jsonify({"msg": "Invalid username or password"}), 401
+        return make_response('Could not verify', 401, {"msg": "Invalid username or password"})
 
 # Single resource
 class Room(Resource):
