@@ -1,5 +1,6 @@
 from flask_jwt import JWT, jwt_required, current_identity
 from baseapp.models import Users
+from baseapp import app
 
 users = Users.query.all()
 
