@@ -1,9 +1,7 @@
 from flask import request
-from flask_restful import reqparse, abort, Api, Resource
+from flask_restful import reqparse, abort, Resource
 from uuid import uuid4
-from baseapp import app
 
-api = Api(app)
 
 ROOMS = {
     '123456789000000000000000000000000000': {
@@ -67,11 +65,3 @@ class RoomList(Resource):
             'room_name': args['room_name']
         }
         return ROOMS[room_id], 201
-
-# Build routes
-api.add_resource(RoomList, '/rooms')
-api.add_resource(Room, '/rooms/<room_id>')
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=6699,debug=True)
