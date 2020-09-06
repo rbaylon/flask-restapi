@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash
 from uuid import uuid4
 from baseapp.models import Users
 from baseapp import app
+from api.controllers import ResourceController
+from baseapp.models import Rooms
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -86,7 +88,14 @@ class Room(Resource):
 class RoomList(Resource):
     @jwt_required
     def get(self):
-        return ROOMS
+        rooms = Rooms.query.all()
+        roomlist = { "rooms": [] }
+        for room in rooms:
+            r = {}
+            r['Room Name'] = room.room_name
+            r['Creator'] = room.your_name
+            roomlist['room'].append(r)
+        return roomlist
 
     @jwt_required
     def post(self):
