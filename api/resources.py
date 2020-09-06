@@ -3,6 +3,7 @@ from flask_restful import reqparse, abort, Resource
 from werkzeug.security import check_password_hash
 from jwttoken import jwt, jwt_required, create_access_token
 from uuid import uuid4
+from baseapp.models import Users
 
 
 ROOMS = {
@@ -41,9 +42,9 @@ class ApiLogin(Resource):
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
 
-        user = Users.query.filter_by(username=auth.username).first()
+        user = Users.query.filter_by(username=username).first()
 
-        if check_password_hash(user.password, auth.password) and user:
+        if check_password_hash(user.password, password) and user:
             access_token = create_access_token(identity=username)
             return jsonify(access_token=access_token), 200
 
