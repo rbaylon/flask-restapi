@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import reqparse, abort, Resource
-from token import jwt, jwt_required
+from jwttoken import jwt, jwt_required
 from uuid import uuid4
 
 
