@@ -6,5 +6,3 @@ app = Flask(__name__)
 app.config.from_pyfile('config.cfg')
 db = SQLAlchemy(app)
 Bootstrap(app)
-
-from baseapp import views

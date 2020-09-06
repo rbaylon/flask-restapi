@@ -1,4 +1,4 @@
-from baseapp import app
+from baseapp import app, views
 from api import rest
 
 if __name__ == '__main__':
