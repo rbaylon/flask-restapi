@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash
 from uuid import uuid4
 from baseapp.models import Users
 from baseapp import app
-from api.controllers import ResourceController
+from api.controllers import RoomsController
 from baseapp.models import Rooms
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -28,14 +28,17 @@ ROOMS = {
 }
 
 
-def abort_if_room_doesnt_exist(room_id):
-    if room_id not in ROOMS:
-        abort(404, message="Room {} doesn't exist".format(room_id))
+def abort_if_room_doesnt_exist(roomid):
+    room = Rooms.query.filter_by(roomid = roomid).first()
+    if not room:
+        abort(404, message="Room ID {} doesn't exist".format(roomid))
+
+    return room
 
 parser = reqparse.RequestParser()
-parser.add_argument('your_name', required=True)
-parser.add_argument('meeting_pwd', required=True)
-parser.add_argument('room_name', required=True)
+parser.add_argument('yourname', required=True)
+parser.add_argument('meetingpwd', required=True)
+parser.add_argument('roomname', required=True)
 
 # Authentication
 class ApiLogin(Resource):
@@ -62,26 +65,43 @@ class ApiLogin(Resource):
 class Room(Resource):
     @jwt_required
     def get(self, room_id):
-        abort_if_room_doesnt_exist(room_id)
-        return ROOMS[room_id]
+        room = abort_if_room_doesnt_exist(room_id)
+        r = {
+            'yourname': room.yourname,
+            'meetingpwd': room.meetingpwd,
+            'roomname': room.roomname,
+            'roomid': room.roomid
+        }
+        return r
 
     @jwt_required
     def delete(self, room_id):
+        rc = RoomsController()
         abort_if_room_doesnt_exist(room_id)
-        del ROOMS[room_id]
-        return '', 204
+        r = {}
+        r['roomid'] = room_id
+
+        if rc.delete(r):
+            return r, 204
+
+        return {'msg': 'Failed to delete record!'}, 404
 
     @jwt_required
     def put(self, room_id):
         request.get_json(force=True)
+        rc = RoomsController()
         args = parser.parse_args()
-        room = {
-            'your_name': args['your_name'],
-            'meeting_pwd': args['meeting_pwd'],
-            'room_name': args['room_name']
-        }
-        ROOMS[room_id] = room
-        return room, 201
+        r = {}
+        r['yourname'] = args['yourname']
+        r['meetingpwd'] = args['meetingpwd']
+        r['roomname'] = args['roomname']
+        r['roomid'] = room_id
+
+         # do validation before calling rc.edit
+        if rc.edit(r):
+            return r, 201
+
+        return {'msg': 'Failed to update record!'}, 404
 
 
 # Multiple resource + add resource
@@ -92,19 +112,27 @@ class RoomList(Resource):
         roomlist = { "rooms": [] }
         for room in rooms:
             r = {}
-            r['Room Name'] = room.room_name
-            r['Creator'] = room.your_name
-            roomlist['room'].append(r)
+            r['Room Name'] = room.roomname
+            r['Creator'] = room.yourname
+            r['Room ID'] = room.roomid
+            roomlist['rooms'].append(r)
         return roomlist
 
     @jwt_required
     def post(self):
         request.get_json(force=True)
+        rc = RoomsController()
         args = parser.parse_args()
         room_id = str(uuid4())
-        ROOMS[room_id] = {
-            'your_name': args['your_name'],
-            'meeting_pwd': args['meeting_pwd'],
-            'room_name': args['room_name']
-        }
-        return ROOMS[room_id], 201
+        r = {}
+        r['yourname'] = args['yourname']
+        r['meetingpwd'] = args['meetingpwd']
+        r['roomname'] = args['roomname']
+        r['roomid'] = room_id
+        r['tmp'] = True
+
+        # do validation before calling rc.add
+        if rc.add(r):
+            return r, 201
+
+        return {'msg': 'Failed to add record!'}, 400

@@ -21,8 +21,10 @@ class RoomsController:
     def edit(self, room):
         existing_room = Rooms.query.filter_by(roomid=room['roomid']).first()
         if existing_room:
+            existing_room.yourname = room['yourname']
             existing_room.meetingpwd = room['meetingpwd']
-            db.session.commit
+            existing_room.roomname = room['roomname']
+            db.session.commit()
             return True
 
         return False
